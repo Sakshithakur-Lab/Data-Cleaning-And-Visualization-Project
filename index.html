@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanData Insights | Data Cleaning & Visual Analytics Studio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar / Navigation Header -->
+        <header class="app-header">
+            <div class="brand-container">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>CleanData <span>Insights</span></h1>
+                    <p class="subtitle">Data Preprocessing, Quality Engineering & Analytics Studio</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="status-chip success">
+                    <span class="pulse-dot"></span> Pipeline Status: Cleaned & Verified
+                </div>
+                <button id="btn-export-csv" class="btn btn-primary">
+                    <i class="fa-solid fa-download"></i> Export Clean CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Metrics Banner -->
+        <section class="kpi-banner">
+            <div class="kpi-card" id="kpi-raw-rows">
+                <div class="kpi-icon icon-purple"><i class="fa-solid fa-database"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Raw Dataset Records</span>
+                    <h3 class="kpi-value" id="val-raw-rows">--</h3>
+                    <span class="kpi-subtext"><i class="fa-solid fa-arrow-up"></i> Includes 40 Duplicates</span>
+                </div>
+            </div>
+
+            <div class="kpi-card" id="kpi-clean-rows">
+                <div class="kpi-icon icon-green"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Cleaned Valid Rows</span>
+                    <h3 class="kpi-value" id="val-clean-rows">--</h3>
+                    <span class="kpi-subtext text-success"><i class="fa-solid fa-check"></i> 100% Ready for Modeling</span>
+                </div>
+            </div>
+
+            <div class="kpi-card" id="kpi-missing">
+                <div class="kpi-icon icon-blue"><i class="fa-solid fa-filter-circle-xmark"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Missing Values Handled</span>
+                    <h3 class="kpi-value" id="val-missing-handled">--</h3>
+                    <span class="kpi-subtext"><i class="fa-solid fa-calculator"></i> Median / Mode Imputed</span>
+                </div>
+            </div>
+
+            <div class="kpi-card" id="kpi-outliers">
+                <div class="kpi-icon icon-orange"><i class="fa-solid fa-chart-line-down"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Outliers Capped (IQR)</span>
+                    <h3 class="kpi-value" id="val-outliers">--</h3>
+                    <span class="kpi-subtext"><i class="fa-solid fa-scissors"></i> Winsorized Boundaries</span>
+                </div>
+            </div>
+
+            <div class="kpi-card" id="kpi-revenue">
+                <div class="kpi-icon icon-teal"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Total Clean Revenue</span>
+                    <h3 class="kpi-value" id="val-total-revenue">$0</h3>
+                    <span class="kpi-subtext" id="val-aov">Avg Order: $0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs-container">
+            <button class="nav-tab active" data-tab="overview">
+                <i class="fa-solid fa-chart-pie"></i> Executive Overview
+            </button>
+            <button class="nav-tab" data-tab="preprocessing">
+                <i class="fa-solid fa-sliders"></i> Data Quality & Preprocessing
+            </button>
+            <button class="nav-tab" data-tab="analytics">
+                <i class="fa-solid fa-chart-column"></i> Interactive Analytics
+            </button>
+            <button class="nav-tab" data-tab="matplotlib-gallery">
+                <i class="fa-solid fa-images"></i> Seaborn Visual Reports
+            </button>
+            <button class="nav-tab" data-tab="dataset-explorer">
+                <i class="fa-solid fa-table"></i> Dataset Explorer
+            </button>
+        </nav>
+
+        <!-- Main Content Views -->
+        <main class="content-area">
+            
+            <!-- TAB 1: EXECUTIVE OVERVIEW -->
+            <section id="tab-overview" class="tab-pane active">
+                <div class="grid-2">
+                    <div class="card story-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-book-open"></i> Data Preprocessing & Storytelling Summary</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead-text">
+                                Raw enterprise datasets are inherently chaotic—filled with incomplete entries, string formatting errors, extreme statistical outliers, and duplicated transactions. Uncleaned data severely skews financial analytics, customer segmentation, and predictive models.
+                            </p>
+                            
+                            <div class="pipeline-milestones">
+                                <div class="milestone">
+                                    <div class="m-icon"><i class="fa-solid fa-broom"></i></div>
+                                    <div class="m-content">
+                                        <h4>1. Deduplication & Standardization</h4>
+                                        <p>Removed redundant transactions, trimmed whitespace, and unified heterogeneous date strings (e.g. <code>05/12/2024</code>, <code>May 12, 2024</code>) to ISO <code>YYYY-MM-DD</code> format.</p>
+                                    </div>
+                                </div>
+
+                                <div class="milestone">
+                                    <div class="m-icon"><i class="fa-solid fa-square-root-variable"></i></div>
+                                    <div class="m-content">
+                                        <h4>2. Robust Missingness Imputation</h4>
+                                        <p>Replaced missing income and purchase metrics using category-wise medians to preserve true statistical distributions without introducing mean-bias.</p>
+                                    </div>
+                                </div>
+
+                                <div class="milestone">
+                                    <div class="m-icon"><i class="fa-solid fa-chart-area"></i></div>
+                                    <div class="m-content">
+                                        <h4>3. IQR Outlier Boundary Capping</h4>
+                                        <p>Identified extreme non-sensical values (e.g., ages of 170+ or $999,999 purchases) using Interquartile Range (IQR) limits and capped them to upper/lower 1.5×IQR limits.</p>
+                                    </div>
+                                </div>
+
+                                <div class="milestone">
+                                    <div class="m-icon"><i class="fa-solid fa-user-tag"></i></div>
+                                    <div class="m-content">
+                                        <h4>4. RFM Customer Segmentation</h4>
+                                        <p>Engineered Recency, Frequency, and Monetary (RFM) metrics to group customers into 5 actionable segments: <em>Champions</em>, <em>Loyal Customers</em>, <em>Recent</em>, <em>At Risk</em>, and <em>Needs Attention</em>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-chart-donut"></i> Revenue by Product Category</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-overview-category"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2 mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-users-viewfinder"></i> RFM Customer Segment Distribution</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-overview-rfm"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-coins"></i> Cleaned Summary Statistics</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-summary-stats">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Raw Mean</th>
+                                            <th>Cleaned Mean</th>
+                                            <th>Raw Median</th>
+                                            <th>Cleaned Median</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="summary-stats-tbody">
+                                        <!-- JS populates stats -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: DATA QUALITY & PREPROCESSING -->
+            <section id="tab-preprocessing" class="tab-pane">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-chart-bar"></i> Missing Values Before vs After Cleaning</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-missing-before-after"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-circle-exclamation"></i> Outlier Remediation Log</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-desc">Features evaluated for extreme values using IQR ($Q3 + 1.5 \times IQR$) and domain boundaries:</p>
+                            <div class="outlier-metrics-grid" id="outlier-log-container">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: INTERACTIVE ANALYTICS -->
+            <section id="tab-analytics" class="tab-pane">
+                <!-- Filter Toolbar -->
+                <div class="filter-toolbar">
+                    <div class="filter-group">
+                        <label for="filter-category"><i class="fa-solid fa-layer-group"></i> Category:</label>
+                        <select id="filter-category" class="form-select">
+                            <option value="ALL">All Categories</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Home & Kitchen">Home & Kitchen</option>
+                            <option value="Beauty">Beauty</option>
+                            <option value="Sports & Outdoors">Sports & Outdoors</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-segment"><i class="fa-solid fa-user-gear"></i> Customer Segment:</label>
+                        <select id="filter-segment" class="form-select">
+                            <option value="ALL">All Segments</option>
+                            <option value="Basic">Basic</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Premium">Premium</option>
+                            <option value="VIP">VIP</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <button id="btn-reset-filters" class="btn btn-secondary">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-line-chart"></i> Monthly Sales & Revenue Growth Trend</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-monthly-trend"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-sack-dollar"></i> Revenue & Order Count by Category</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-cat-revenue"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2 mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-users"></i> Age & Income Distribution Scatter</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-scatter-income-age"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-star"></i> Customer Ratings Distribution</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrapper">
+                                <canvas id="chart-ratings-dist"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: SEABORN VISUAL REPORTS GALLERY -->
+            <section id="tab-matplotlib-gallery" class="tab-pane">
+                <div class="gallery-intro">
+                    <h2><i class="fa-solid fa-file-image"></i> Publication-Quality Seaborn & Matplotlib Reports</h2>
+                    <p>High-resolution statistical graphics auto-generated by <code>data_visualizer.py</code> pipeline.</p>
+                </div>
+
+                <div class="gallery-grid">
+                    <div class="gallery-item" data-img="../static/visualizations/01_missing_data_analysis.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/01_missing_data_analysis.png" alt="Missing Data Analysis">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>01. Missing Data Analysis</h4>
+                            <p>Before vs. After imputation comparison & missingness matrix.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/02_outlier_detection_boxplots.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/02_outlier_detection_boxplots.png" alt="Outlier Detection Boxplots">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>02. Outlier Detection Boxplots</h4>
+                            <p>Raw vs IQR-winsorized distributions for income and purchase amount.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/03_customer_demographics.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/03_customer_demographics.png" alt="Customer Demographics">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>03. Customer Demographics</h4>
+                            <p>Age histogram, income brackets, and top cities by volume.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/04_sales_trends_time_series.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/04_sales_trends_time_series.png" alt="Sales Trends Time Series">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>04. Monthly Revenue Time Series</h4>
+                            <p>Revenue trendline with 3-month moving average & order counts.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/05_category_performance.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/05_category_performance.png" alt="Category Performance">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>05. Category Financials & Rating</h4>
+                            <p>Total revenue, average order value, and rating violin plot.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/06_correlation_heatmap.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/06_correlation_heatmap.png" alt="Correlation Heatmap">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>06. Feature Correlation Heatmap</h4>
+                            <p>Annotated Seaborn correlation matrix between numerical features.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-item" data-img="../static/visualizations/07_rfm_customer_segmentation.png">
+                        <div class="gallery-img-wrapper">
+                            <img src="../static/visualizations/07_rfm_customer_segmentation.png" alt="RFM Segmentation">
+                        </div>
+                        <div class="gallery-info">
+                            <h4>07. RFM Customer Segmentation</h4>
+                            <p>Recency vs Spend scatter plot & customer segment counts.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: DATASET EXPLORER -->
+            <section id="tab-dataset-explorer" class="tab-pane">
+                <div class="card">
+                    <div class="card-header table-toolbar">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="table-search" class="form-input" placeholder="Search customer, city, category, transaction ID...">
+                        </div>
+
+                        <div class="table-actions">
+                            <div class="data-mode-toggle">
+                                <label>Dataset View:</label>
+                                <button id="btn-mode-clean" class="btn btn-sm btn-mode active">Cleaned Data</button>
+                                <button id="btn-mode-raw" class="btn btn-sm btn-mode">Raw Messy Data</button>
+                            </div>
+                            <span class="badge" id="record-count-badge">Showing 0 of 0 records</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="main-data-table">
+                                <thead>
+                                    <tr id="table-headers">
+                                        <!-- Dynamic headers -->
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Pagination -->
+                        <div class="table-pagination">
+                            <div class="pagination-info">
+                                Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button id="btn-prev-page" class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fa-solid fa-chevron-left"></i> Previous
+                                </button>
+                                <button id="btn-next-page" class="btn btn-secondary btn-sm">
+                                    Next <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div id="image-modal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modal-img" alt="Zoomed View">
+        <div id="modal-caption" class="modal-caption"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
