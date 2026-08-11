@@ -75,3 +75,5 @@ python3 -m unittest test_pipeline.py
 5. `05_category_performance.png`: Product category revenue, AOV, and customer rating violin plots.
 6. `06_correlation_heatmap.png`: Feature correlation matrix heatmap.
 7. `07_rfm_customer_segmentation.png`: Recency vs Monetary spend scatter plot by RFM segment.
+
+
